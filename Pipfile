@@ -8,9 +8,9 @@ flake8 = "*"
 black = "*"
 
 [packages]
-django = "*"
 pillow = "*"
 django-seed = "*"
+django = "*"
 
 [requires]
 python_version = "3.7"
