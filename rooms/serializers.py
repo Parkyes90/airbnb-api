@@ -1,14 +1,13 @@
 from rest_framework import serializers
 
+from rooms.models import Room
+from users.serializers import TinyUserSerializer
 
-class RoomSerializer(serializers.Serializer):
-    def update(self, instance, validated_data):
-        pass
 
-    def create(self, validated_data):
-        pass
+class RoomSerializer(serializers.ModelSerializer):
 
-    name = serializers.CharField(max_length=140)
-    price = serializers.IntegerField()
-    bedrooms = serializers.IntegerField()
-    instant_book = serializers.BooleanField()
+    user = TinyUserSerializer()
+
+    class Meta:
+        model = Room
+        fields = ("name", "price", "instant_book", "user")
