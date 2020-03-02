@@ -8,7 +8,7 @@ class RoomSerializer(serializers.Serializer):
     def create(self, validated_data):
         pass
 
-    name = serializers.CharField()
+    name = serializers.CharField(max_length=140)
     price = serializers.IntegerField()
     bedrooms = serializers.IntegerField()
     instant_book = serializers.BooleanField()
