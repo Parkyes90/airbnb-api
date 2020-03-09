@@ -1,19 +1,19 @@
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Room
 from .serializers import ReadRoomSerializer, WriteRoomSerializer
 
 
-@api_view(["GET", "POST"])
-def rooms_view(request):
-    if request.method == "GET":
+class RoomsView(APIView):
+    def get(self, request):
         rooms = Room.objects.all()
         serializer = ReadRoomSerializer(rooms, many=True).data
         return Response(serializer)
-    elif request.method == "POST":
+
+    def post(self, request):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         serializer = WriteRoomSerializer(data=request.data)
@@ -21,10 +21,22 @@ def rooms_view(request):
             room = serializer.save(user=request.user)
             room_serializer = ReadRoomSerializer(room).data
             return Response(data=room_serializer, status=status.HTTP_200_OK)
+        return Response(
+            data=serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class RoomView(APIView):
+    def get(self, request, pk):
+        try:
+            room = Room.objects.get(pk=pk)
+            serializer = ReadRoomSerializer(room).data
+        except Room.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK, data=serializer)
 
-class SeeRoomView(RetrieveAPIView):
-    queryset = Room.objects.all()
-    serializer_class = ReadRoomSerializer
+    def put(self, request, pk):
+        pass
+
+    def delete(self, request, pk):
+        pass
