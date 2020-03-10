@@ -4,31 +4,13 @@ from rooms.models import Room
 from users.serializers import RelatedUserSerializer
 
 
-class ReadRoomSerializer(serializers.ModelSerializer):
-
+class RoomSerializer(serializers.ModelSerializer):
     user = RelatedUserSerializer()
 
     class Meta:
         model = Room
         exclude = ("modified",)
-
-
-class WriteRoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Room
-        fields = (
-            "name",
-            "address",
-            "price",
-            "beds",
-            "lat",
-            "lng",
-            "bedrooms",
-            "bathrooms",
-            "check_in",
-            "check_out",
-            "instant_book",
-        )
+        read_only_fields = ("user", "id", "created", "updated")
 
     def validate(self, data):
         if not self.instance:
