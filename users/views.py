@@ -1,5 +1,8 @@
+import jwt
+from django.conf import settings
+from django.contrib.auth import authenticate
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -71,9 +74,16 @@ class FavsView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def toggle_fav(request):
-    room = request.data.get("room")
-    print(room)
-    return Response()
+@api_view(["POST"])
+def login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    if not username or not password:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    user = authenticate(request, username=username, password=password)
+    if not user:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    encoded_jwt = jwt.encode(
+        {"pk": user.pk}, settings.SECRET_KEY, algorithm="HS256"
+    )
+    return Response({"token": encoded_jwt})

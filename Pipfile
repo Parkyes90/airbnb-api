@@ -12,6 +12,7 @@ pillow = "*"
 django-seed = "*"
 django = "*"
 djangorestframework = "*"
+pyjwt = "*"
 
 [requires]
 python_version = "3.8"
