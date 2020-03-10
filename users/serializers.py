@@ -34,4 +34,4 @@ class ReadUserSerializer(serializers.ModelSerializer):
 class WriteUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ("user", "modified", "created")
+        fields = ("username", "first_name", "last_name", "email")
