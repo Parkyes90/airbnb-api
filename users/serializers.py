@@ -29,3 +29,9 @@ class ReadUserSerializer(serializers.ModelSerializer):
             "is_active",
             "date_joined",
         )
+
+
+class WriteUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ("user", "modified", "created")
