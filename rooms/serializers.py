@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from rooms.models import Room
-from users.serializers import UserSerializer
+from users.serializers import RelatedUserSerializer
 
 
 class ReadRoomSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer()
+    user = RelatedUserSerializer()
 
     class Meta:
         model = Room
