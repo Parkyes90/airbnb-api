@@ -17,5 +17,10 @@ class JWTAuthentication(authentication.BaseAuthentication):
             pk = decoded.get("pk")
             user = User.objects.get(pk=pk)
             return user, None
-        except (ValueError, jwt.exceptions.DecodeError, User.DoesNotExist):
+        except (
+            ValueError,
+            jwt.exceptions.DecodeError,
+            User.DoesNotExist,
+            AttributeError,
+        ):
             return None

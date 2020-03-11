@@ -1,17 +1,25 @@
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 
 from .models import Room
 from .serializers import RoomSerializer
 
 
+class OwnPagination(PageNumberPagination):
+    page_size = 20
+
+
 class RoomsView(APIView):
     def get(self, request):
+        paginator = OwnPagination()
         rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True).data
-        return Response(serializer)
+        results = paginator.paginate_queryset(rooms, request)
+        serializer = RoomSerializer(results, many=True).data
+        return paginator.get_paginated_response(serializer)
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -71,3 +79,35 @@ class RoomView(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+def room_search(request):
+    max_price = request.GET.get("max_price", None)
+    min_price = request.GET.get("min_price", None)
+    beds = request.GET.get("bedrooms", None)
+    bathrooms = request.GET.get("bathrooms", None)
+    lat = request.GET.get("lat", None)
+    lng = request.GET.get("lng", None)
+    filter_kwargs = {}
+    paginator = OwnPagination()
+    try:
+        if max_price is not None:
+            filter_kwargs["price__lte"] = max_price
+        if min_price is not None:
+            filter_kwargs["price__gte"] = min_price
+        if beds is not None:
+            filter_kwargs["beds__gte"] = beds
+        if bathrooms is not None:
+            filter_kwargs["bathrooms__gte"] = bathrooms
+        if lat is not None and lng is not None:
+            filter_kwargs["lat_gte"] = float(lat) - 0.005
+            filter_kwargs["lat_lte"] = float(lat) + 0.005
+            filter_kwargs["lng_gte"] = float(lng) - 0.005
+            filter_kwargs["lng_lte"] = float(lng) + 0.005
+        rooms = Room.objects.filter(**filter_kwargs)
+    except ValueError:
+        rooms = Room.objects.all()
+    results = paginator.paginate_queryset(rooms, request)
+    serializer = RoomSerializer(results, many=True)
+    return paginator.get_paginated_response(serializer.data)
